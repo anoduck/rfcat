@@ -3,9 +3,48 @@ name = "rfcat"
 version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
+    "build>=1.2.2.post1",
     "future>=1.0.0",
     "ipython>=8.32.0",
     "numpy>=2.2.3",
+    "pyinstaller>=6.12.0",
     "pyserial>=3.5",
     "pyusb>=1.3.1",
 ]
+
+[tool.ruff]
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+]
+line-length = 120
+indent-width = 4
+target-version = "py312"
+
+[tool.ruff.format]
+quote-style = "single"
+indent-style = "tab"

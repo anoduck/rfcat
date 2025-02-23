@@ -4,7 +4,6 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
-from builtins import bytes
 from builtins import str
 from builtins import hex
 from builtins import range
@@ -19,7 +18,6 @@ import select
 import threading
 from binascii import hexlify
 
-from . import bits
 from .bits import correctbytes, ord23
 from .const import *
 
@@ -93,7 +91,7 @@ class USBDongle(object):
         self.resetup(copyDongle=copyDongle)
 
     def cleanup(self):
-        self._usberrorcnt = 0;
+        self._usberrorcnt = 0
         self.recv_queue = b''
         self.recv_mbox  = {}
         self.recv_event = threading.Event()

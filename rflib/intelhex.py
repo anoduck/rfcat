@@ -138,7 +138,7 @@ class IntelHex(object):
             # data record
             addr += self._offset
             for i in range(4, 4+record_length):
-                if not self._buf.get(addr, None) is None:
+                if self._buf.get(addr, None) is not None:
                     raise AddressOverlapError(address=addr, line=line)
                 self._buf[addr] = bin[i]
                 addr += 1   # FIXME: addr should be wrapped 

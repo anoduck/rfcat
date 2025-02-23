@@ -179,7 +179,7 @@ class TestApis(unittest.TestCase):
 
 
     def test_bits(self):
-        import rflib.bits as rfbits
+        pass
         
 
     def test_intelhex(self):

@@ -216,7 +216,7 @@ def findSyncWord(byts, sensitivity=4, minpreamble=2):
                 for frontbits in range( bitcount ):            # with so many bit-inverted systems, let's not assume we know anything about the bit-arrangement.  \x55\x55 could be a perfectly reasonable preamble.
                     poss = (bits1 >> frontbits) & 0xffff
                     #print("poss (%x >> %d): %x" % (bits1, frontbits, poss))
-                    if not poss in possDwords:
+                    if poss not in possDwords:
                         possDwords.append(poss)
             byts = byts[pidx+1:]
         
