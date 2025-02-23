@@ -139,7 +139,7 @@ class RfCat(FHSSNIC):
         else:
             fd0o.write(data)
 
-    def rf_write_date(self, fd0o):
+    def rf_write_data(self, fd0o):
         data, time = self.recv(APP_SPECAN, 1, 1)
         data = struct.pack("<fH", time, len(data)) + data
         if isinstance(data, bytes):
@@ -184,7 +184,7 @@ class RfCat(FHSSNIC):
 
                 #special handling of specan dumps...  somewhat set in solid jello
                 try:
-                    self.rf_write_date(fd0o)
+                    self.rf_write_data(fd0o)
 
                 except ChipconUsbTimeoutException:
                     #print "this is a valid exception, run along... %x"% APP_SPECAN
