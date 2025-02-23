@@ -102,6 +102,56 @@ class RfCat(FHSSNIC):
     def rf_configure(self, *args, **kwargs):
         self.setRFparameters(*args, **kwargs)
 
+    def rf_read_pkt(self, fd0i):        
+        x,y,z = select.select([fd0i ], [], [], .1)
+        if fd0i in x:
+            # FIXME: make this aware of VLEN/FLEN and the proper length
+            if fdsock:
+                data = fd0i.recv(self.max_packet_size)
+            else:
+                data = fd0i.read(self.max_packet_size)
+
+            if not len(data):       # terminated socket
+                return False
+
+            buf += data
+            pktlen, vlen = self.getPktLEN()
+            if vlen:
+                pktlen = ord(buf[0])
+
+            #FIXME: probably want to take in a length struct here and then only send when we have that many bytes...
+            data = buf[:pktlen]
+            if use_rawinput:
+                data = eval('"%s"'%data)
+
+            if len(buf) >= pktlen:
+                self.RFxmit(data)
+    
+    def rf_write_pkt(self, fd0o):
+        data, time = self.RFrecv(1)
+
+        if printable:
+            data = "\n"+str(time)+": "+repr(data)
+        else:
+            data = struct.pack("<fH", time, len(data)) + data
+        if fdsock:
+            fd0o.sendall(data)
+        else:
+            fd0o.write(data)
+
+    def rf_write_data(self, fd0o):
+        data, time = self.recv(APP_SPECAN, 1, 1)
+        data = struct.pack("<fH", time, len(data)) + data
+        if isinstance(data, bytes):
+            try:
+                data = data.decode("utf-8")
+            except (UnicodeDecodeError, AttributeError):
+                pass
+        if fdsock:
+            fd0o.sendall(data)
+        else:
+            fd0o.write(data)
+
     def rf_redirection(self, fdtup, use_rawinput=False, printable=False):
         buf = b''
 
@@ -119,59 +169,22 @@ class RfCat(FHSSNIC):
             while True:
                 #if self._pause:
                 #    continue
-
+                                
                 try:
-                    x,y,z = select.select([fd0i ], [], [], .1)
-                    if fd0i in x:
-                        # FIXME: make this aware of VLEN/FLEN and the proper length
-                        if fdsock:
-                            data = fd0i.recv(self.max_packet_size)
-                        else:
-                            data = fd0i.read(self.max_packet_size)
-
-                        if not len(data):       # terminated socket
-                            break
-
-                        buf += data
-                        pktlen, vlen = self.getPktLEN()
-                        if vlen:
-                            pktlen = ord(buf[0])
-
-                        #FIXME: probably want to take in a length struct here and then only send when we have that many bytes...
-                        data = buf[:pktlen]
-                        if use_rawinput:
-                            data = eval('"%s"'%data)
-
-                        if len(buf) >= pktlen:
-                            self.RFxmit(data)
-
+                    self.rf_read_pkt(fd0i)
+                    
                 except ChipconUsbTimeoutException:
                     pass
 
                 try:
-                    data, time = self.RFrecv(1)
-
-                    if printable:
-                        data = "\n"+str(time)+": "+repr(data)
-                    else:
-                        data = struct.pack("<fH", time, len(data)) + data
-
-                    if fdsock:
-                        fd0o.sendall(data)
-                    else:
-                        fd0o.write(data)
+                    self.rf_write_pkt(fd0o)
 
                 except ChipconUsbTimeoutException:
                     pass
 
                 #special handling of specan dumps...  somewhat set in solid jello
                 try:
-                    data, time = self.recv(APP_SPECAN, 1, 1)
-                    data = struct.pack("<fH", time, len(data)) + data
-                    if fdsock:
-                        fd0o.sendall(data)
-                    else:
-                        fd0o.write(data)
+                    self.rf_write_data(fd0o)
 
                 except ChipconUsbTimeoutException:
                     #print "this is a valid exception, run along... %x"% APP_SPECAN
@@ -228,14 +241,14 @@ def interact(lcls, gbls, intro=""):
         print(intro)
         shelltype = STYPE_IPYTHON811P
 
-    except ImportError as e:
+    except ImportError:
         try:
             import IPython.Shell
             ipsh = IPython.Shell.IPShell(argv=[''], user_ns=lcls, user_global_ns=gbls)
             print(intro)
             shelltype = STYPE_IPYTHON
 
-        except ImportError as e:
+        except ImportError:
             try:
                 from IPython.terminal.interactiveshell import TerminalInteractiveShell
                 ipsh = TerminalInteractiveShell()
@@ -245,7 +258,7 @@ def interact(lcls, gbls, intro=""):
                 shelltype = STYPE_IPYTHON
                 print(intro)
 
-            except ImportError as e:
+            except ImportError:
                 try:
                     from IPython.frontend.terminal.interactiveshell import TerminalInteractiveShell
                     ipsh = TerminalInteractiveShell()

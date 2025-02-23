@@ -219,11 +219,8 @@ class VStructBuilder:
 
 if __name__ == '__main__':
     # Parse windows structures from dll symbols...
-    import os
     import sys
-    import platform
 
-    from pprint import pprint
 
     import PE
     import vtrace.platforms.win32 as vt_win32

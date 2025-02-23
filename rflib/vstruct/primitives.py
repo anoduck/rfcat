@@ -177,7 +177,7 @@ class v_number(v_prim):
     def __coerce__(self, other):
         try:
             return int(self),int(other)
-        except Exception as e:
+        except Exception:
             return NotImplemented
 
     # Print helpers

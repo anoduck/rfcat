@@ -4,19 +4,15 @@ from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
 
-from builtins import bytes
 from builtins import hex
 from builtins import range
 from builtins import object
 from past.utils import old_div
 import re
 import sys
-import usb
-import code
 import time
 import struct
 import pickle
-import threading
 from .chipcon_usb import *
 from .bits import correctbytes, ord23
 from .const import *

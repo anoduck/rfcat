@@ -4,8 +4,6 @@ import usb
 import time
 import queue
 import logging
-import unittest
-import threading
 import traceback
 
 from rflib.const import *
@@ -337,7 +335,7 @@ class fakeDongle:
                         #    resetRFSTATE();
                         #    self.macdata.mac_state = FHSS_STATE_NONHOPPING;
                         #}
-                        self.txdata(app, cmd, data[0]);
+                        self.txdata(app, cmd, data[0])
 
                 elif cmd == FHSS_XMIT:
                     length = ord23(data[0])
@@ -350,13 +348,13 @@ class fakeDongle:
                     #MAC_tx(data, len);
                     ##/// for some strange reason, if we call this in MAC_tx it dies, but not from here. ugh.
                     if (length > MAX_TX_MSGLEN):
-                        self.debug("FHSSxmit message too long");
-                        self.txdata(app, cmd, b'%c' % length);
+                        self.debug("FHSSxmit message too long")
+                        self.txdata(app, cmd, b'%c' % length)
                         return buflen
 
                     elif (self.g_txMsgQueue[self.macdata.txMsgIdx][0] != 0):
-                        self.debug("still waiting on the last packet");
-                        self.txdata(app, cmd, b'%c' % length);
+                        self.debug("still waiting on the last packet")
+                        self.txdata(app, cmd, b'%c' % length)
                         return buflen
 
                     g_txMsgQueue[self.macdata.txMsgIdx][0] = length
@@ -364,7 +362,7 @@ class fakeDongle:
 
                     self.macdata.txMsgIdx += 1
                     if (self.macdata.txMsgIdx >= MAX_TX_MSGS):
-                        self.macdata.txMsgIdx = 0;
+                        self.macdata.txMsgIdx = 0
 
                     self.txdata(app, cmd,  b'%c' % length)
                     
@@ -390,36 +388,36 @@ class fakeDongle:
                 elif cmd == FHSS_CHANGE_CHANNEL:
                     #PHY_set_channel(data[0]);
                     self.memory.writeMemory(CHANNR, data[0])
-                    self.txdata(app, cmd, data[0]);
+                    self.txdata(app, cmd, data[0])
 
                 elif cmd == FHSS_START_HOPPING:
-                    self.begin_hopping(0);
-                    self.txdata(app, cmd, data[0]);
+                    self.begin_hopping(0)
+                    self.txdata(app, cmd, data[0])
 
                 elif cmd == FHSS_STOP_HOPPING:
-                    self.stop_hopping();
-                    self.txdata(app, cmd, data[0]);
+                    self.stop_hopping()
+                    self.txdata(app, cmd, data[0])
 
                 elif cmd == FHSS_SET_MAC_THRESHOLD:
                     self.macdata.MAC_threshold = ord23(data[0])
-                    self.txdata(app, cmd, data[0]);
+                    self.txdata(app, cmd, data[0])
 
                 elif cmd == FHSS_GET_MAC_THRESHOLD:
                     self.txdata(app, cmd, struct.pack("<I", self.macdata.MAC_threshold))
 
                 elif cmd == FHSS_SET_MAC_DATA:
-                    self.debugx(data);
+                    self.debugx(data)
                     #debughex(data[0]);
                     self.macdata.deserialize(data)
-                    self.txdata(app, cmd, data);
+                    self.txdata(app, cmd, data)
 
                 elif cmd == FHSS_GET_MAC_DATA:
                     self.macdata.MAC_timer = self.get_rf_MAC_timer()
-                    self.txdata(app, cmd, self.macdata.serialize());
+                    self.txdata(app, cmd, self.macdata.serialize())
 
                 elif cmd == FHSS_START_SYNC:
                     #MAC_sync(data[0])
-                    self.txdata(app, cmd, data[0]);
+                    self.txdata(app, cmd, data[0])
                     
                 elif cmd == FHSS_SET_STATE:
                     # store the main timer value for beginning of this phase.
@@ -429,15 +427,15 @@ class fakeDongle:
                     # if macdata.mac_state is > 2, make sure the T2 interrupt is set
                     # if macdata.mac_state <= 2, make sure T2 interrupt is ignored
                     if self.macdata.mac_state in (FHSS_STATE_NONHOPPING, FHSS_STATE_DISCOVERY, FHSS_STATE_SYNCHING):
-                        self.stop_hopping();
+                        self.stop_hopping()
 
                     elif self.macdata.mac_state == FHSS_STATE_SYNCINGMASTER:
-                        self.MAC_do_Master_scanny_thingy();
+                        self.MAC_do_Master_scanny_thingy()
 
                     elif self.macdata.mac_state in (FHSS_STATE_SYNCHED, FHSS_STATE_SYNC_MASTER):
-                        self.begin_hopping(0);
+                        self.begin_hopping(0)
                     
-                    self.txdata(app, cmd, data[0]);
+                    self.txdata(app, cmd, data[0])
                     
                 elif cmd == FHSS_GET_STATE:
                     self.txdata(app, cmd, self.macdata.mac_state)
